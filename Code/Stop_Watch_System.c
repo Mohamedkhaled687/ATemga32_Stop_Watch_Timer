@@ -2,7 +2,6 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include "Stop_Watch_Project.h"
-typedef unsigned char unit8;
 
 
 unit8 seconds = 0, minutes = 0, hours = 0, count_down = 0;
@@ -13,7 +12,7 @@ ISR(TIMER1_COMPA_vect) {
         // Count Down Mode
         if (count_down) {
             if (seconds == 0 && hours == 0 && minutes == 0) {
-                // buzzer
+                PORTD |= (1 << PD0);
             }
 
             if (seconds > 0) {
@@ -162,6 +161,10 @@ int main() {
     DDRD |= (1 << PD4) | (1 << PD5);
 
 
+    // Set PIND zero for Buzzer
+    DDRD |= (1 << PD0);
+
+
     PORTA &= ~(0x3F);  // Clear PA0-PA5
     PORTC &= 0xF0;     // Clear lower nibble of PORTC
 
@@ -171,7 +174,7 @@ int main() {
     INT1_init();
     INT2_init();
 
-    unit8  button_pressed = 0;
+    unit8  button_pressed_PB7 = 0;
     unit8 button_pressed_PB1 = 0;  // Flag for Hours increment (PB1)
     unit8 button_pressed_PB0 = 0;  // Flag for Hours decrement (PB0)
     unit8 button_pressed_PB4 = 0;  // Flag for Minutes increment (PB4)
@@ -189,18 +192,21 @@ int main() {
         display_hours();
 
 
+        // Turn off Buzzer
+        if(seconds != 0 || hours != 0 || minutes != 0)
+        	PORTD &= ~(1 << PD0);
 
 
         // Handle mode toggle with debouncing
-        if (!(PINB & (1 << PB7)) && !button_pressed) {
+        if (!(PINB & (1 << PB7)) && !button_pressed_PB7) {
             _delay_ms(20);  // Debounce delay
             if (!(PINB & (1 << PB7))) {  // Check if still pressed after debounce
                 count_down = !count_down;  // Toggle count mode
-                button_pressed = 1;  // Set the flag to indicate button is pressed
+                button_pressed_PB7 = 1;  // Set the flag to indicate button is pressed
             }
         }
         if (PINB & (1 << PB7)) {
-            button_pressed = 0;
+            button_pressed_PB7 = 0;
         }
 
         // LEDs for Countup and CountDown
@@ -327,9 +333,6 @@ int main() {
         if(PINB & (1 << PB5)){
             button_pressed_PB5 = 0;  // Reset flag once the button is released
         }
-
-
     }
-
 
 }
