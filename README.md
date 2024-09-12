@@ -1,4 +1,4 @@
-# ATemga32_Stop_Watch_Timer# ⏱️ ATemga32_Stop_Watch_Timer
+ # ATemga32_Stop_Watch_Timer ⏱️
 
 This project implements a versatile stopwatch using the **ATmega32 microcontroller**, featuring both increment and countdown modes. The display is handled through **multiplexed seven-segment displays**, and various functions such as reset, pause, and resume are controlled via external interrupts.
 
